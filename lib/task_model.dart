@@ -1,6 +1,6 @@
 class Tasklist {
  
-  final String projectId;
+final   String projectId;
     final String status;
     final String taskId; 
 final String moduleId;
@@ -53,8 +53,8 @@ final String moduleId;
 }
 class Taskdetails {
  
-  final String projectId;
-  final String projectName;
+  final int projectId;
+ // final String projectName;
  /* final int moduleId;
   final String startDate;
   final String endDate;
@@ -69,7 +69,7 @@ class Taskdetails {
   Taskdetails({
    
     required this.projectId,
-    required this.projectName,
+  //  required this.projectName,
    /* required this.moduleId,
    required this.startDate,
     required this.endDate,
@@ -86,7 +86,7 @@ class Taskdetails {
     return Taskdetails(
       
       projectId: json['project_id'],
-      projectName:json['project_name'],
+     // projectName:json['project_name'],
       /*moduleId: json['module_id'],
       taskId: json['task_id'],
       startDate: json['startDate'],

@@ -7,87 +7,81 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TaskView extends StatefulWidget {
- // const TaskView({Key key});
+  const TaskView({super.key});
 
   @override
   State<TaskView> createState() => _TaskViewState();
 }
 
 class _TaskViewState extends State<TaskView> {
-  List<Tasklist> tasks = [];
-  String selectedProjectId = '';
-  List<String> projectIds = []; // Store available project IDs
-
-  Future<void> fetchtasks() async {
-    final Uri apiUrl = Uri.parse('http://localhost:5000/task_view');
-    final response = await http.get(apiUrl);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body);
-      setState(() {
-        tasks = jsonData.map((item) => Tasklist.fromJson(item)).toList();
-      });
-    }
-  }
-
-  Future<void> fetchProjectIds() async {
-    final Uri projectUrl = Uri.parse('http://localhost:5000/project_ids');
+   List<String> items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
+  String selectedDropdownValue1 = 'Item 1';
+  String selectedDropdownValue2 = 'Item 2';
+    List<Taskdetails> projectIds = [];
+   Future<void> fetchProjectIds() async {
+    final Uri projectUrl = Uri.parse('http://localhost:5000//view_project');
     final response = await http.get(projectUrl);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       setState(() {
-        projectIds = jsonData.cast<String>().toList();
+        projectIds = jsonData.cast<Taskdetails>().toList();
       });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchProjectIds(); // Fetch project IDs
-    fetchtasks();
+    
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       appBar: AppBar(
-        title: const Text('Task Manager'),
+        title:  Text("Task Manager"),
       ),
-      body: 
-      
-      Column(
+      body: Column(
         children: [
-          DropdownButton<String>(
-            value: selectedProjectId,
-            onChanged: (newValue) {
-              setState(() {
-                selectedProjectId = toString();
-              });
-              fetchtasks(); // Fetch tasks when project ID changes
-            },
-            items: projectIds.map((projectId) {
-              return DropdownMenuItem(value: projectId, child: Text(projectId));
-            }).toList(),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButton<String>(
+                  value: selectedDropdownValue1,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedDropdownValue1 = newValue!;
+                    });
+                  },
+                  items: projectIds.map((String item) {
+                    return DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                ),
+              ),
+              Expanded(
+                child: DropdownButton<String>(
+                  value: selectedDropdownValue2,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedDropdownValue2 = newValue!;
+                    });
+                  },
+                  items: items.map((String item) {
+                    return DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: tasks.length,
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                final task = tasks[index];
                 return ListTile(
-                  title: Text('task ID : ${task.taskId}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Project ID : ${task.projectId}'),
-                      Text('status : ${task.status}'),
-                    ],
-                    
-                  ),
-                
-                  trailing: const Icon(Icons.arrow_forward),
+                  title: Text("TaskID"),
+                  subtitle: Text("STATUS"),
+                 trailing: const Icon(Icons.arrow_forward),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -101,7 +95,7 @@ class _TaskViewState extends State<TaskView> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(

@@ -1,249 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/Task_Create.dart';
-class TaskView extends StatelessWidget {
-  const TaskView({super.key});
+import 'package:task_manager/Task_edit.dart';
+import 'package:task_manager/Task_Details.dart';
+import 'package:task_manager/task_create1.dart';
+import 'task_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class TaskView extends StatefulWidget {
+ // const TaskView({Key key});
+
+  @override
+  State<TaskView> createState() => _TaskViewState();
+}
+
+class _TaskViewState extends State<TaskView> {
+  List<Tasklist> tasks = [];
+  String selectedProjectId = '';
+  List<String> projectIds = []; // Store available project IDs
+
+  Future<void> fetchtasks() async {
+    final Uri apiUrl = Uri.parse('http://localhost:5000/task_view');
+    final response = await http.get(apiUrl);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      setState(() {
+        tasks = jsonData.map((item) => Tasklist.fromJson(item)).toList();
+      });
+    }
+  }
+
+  Future<void> fetchProjectIds() async {
+    final Uri projectUrl = Uri.parse('http://localhost:5000/project_ids');
+    final response = await http.get(projectUrl);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      setState(() {
+        projectIds = jsonData.cast<String>().toList();
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProjectIds(); // Fetch project IDs
+    fetchtasks();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Task Manager"),),
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text("taskid"),
-            subtitle:Column(
-              crossAxisAlignment: CrossAxisAlignment.start ,
-              children: [
-                Text("projectid"),
-                Text("status"),
-              ],
+      appBar: AppBar(
+        title: const Text("Task Manager"),
+      ),
+      body: Column(
+        children: [
+          DropdownButton<String>(
+            value: selectedProjectId,
+            onChanged: (newValue) {
+              setState(() {
+                selectedProjectId = toString();
+              });
+              fetchtasks(); // Fetch tasks when project ID changes
+            },
+            items: projectIds.map((projectId) {
+              return DropdownMenuItem(value: projectId, child: Text(projectId));
+            }).toList(),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return ListTile(
+                  title: Text('task ID : ${task.taskId}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Project ID : ${task.projectId}'),
+                      Text('status : ${task.status}'),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: ((context) => taskDetails(tasks: task)),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            
-          );
-          
-        }
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: (){Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) =>  TaskCreate()),
-        );
-    }
-      ),
-        
-       
-    );
-    
-  }
-}
-
-
-
-
-
-
-
-
-
-class UpdateTaskForm extends StatefulWidget {
-  //const TaskView({super.key});
-
-  @override
-  State<UpdateTaskForm> createState() => _TaskViewState();
-}
-
-class _TaskViewState extends State<UpdateTaskForm> {
-  final GlobalKey<FormState> _formKey =GlobalKey<FormState>();
-  final TextEditingController taskIdController =TextEditingController();
-  final TextEditingController projectIdControler =TextEditingController();
-  final TextEditingController moduleIdController = TextEditingController();
-  final TextEditingController startDateController=TextEditingController();
-  final TextEditingController endDateController=TextEditingController();
-  final TextEditingController actualStartDateController = TextEditingController();
-  final TextEditingController actualEndDateController = TextEditingController();
-  final TextEditingController plannedEffortController=TextEditingController();
-  final TextEditingController actualEffortController =TextEditingController();
-  
-  String selectedStatus = 'pending'; // Default status
-
-  List<String> statusOptions = ['pending', 'completed'];
-
-  final TextEditingController remarkController= TextEditingController();
- 
- /* Future<void> _selectDate(BuildContext context,DateTime initialDate,Function(DateTime) onDateSelect)async{
-    final DateTime? picked = await showDatePicker(
-      context: context, 
-      initialDate: DateTime.now(), 
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-       );
-       if(picked !=null){
-        onDateSelect(picked);
-       }*/
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold( appBar: AppBar(
-        title: Text('Update Task'),
-        
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-        child: Form(
-          key:_formKey,
-          child: Column(children: <Widget>[
-            TextFormField(
-              controller: taskIdController,
-              decoration: InputDecoration(labelText: 'task ID'),
-              validator: (value) {
-                if(value == null || value.isEmpty){
-                  return 'please enter the taskID';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: projectIdControler,
-              decoration: InputDecoration(labelText: 'projectID'),
-              validator: (value) {
-                if(value == null || value.isEmpty){
-                  return 'please enter the projectID';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: moduleIdController,
-              decoration: InputDecoration(labelText: 'moduleID'),
-              validator: (value) {
-                if(value == null || value.isEmpty){
-                  return 'please enter the moduleID';
-                }
-                return null;
-              },
-            ),
-           
-               Text("Start date: ${DateFormat('dd-MM-yyyy').format(startDate)}"),
-
-            IconButton(
-              icon: Icon(Icons.date_range),
-              onPressed: () {
-                _selectDate(context, startDate, (date) {
-                  setState(() {
-                    startDate = date;
-                    });
-                  });
-                }, ),
-                 Text("End date :"),
-                Text(endDate.toString()),
-                IconButton(
-                 icon: Icon(Icons.date_range), 
-                  onPressed: (){
-                  _selectDate(context,endDate,(date){
-                    setState(() {
-                      endDate=date;
-                    });
-                  });
-                }, ),
-            
-                 
-               
-                    Text("Expected start date :"),
-                Text(actualStartDate.toString()),
-                    IconButton(
-                     icon: Icon(Icons.date_range), 
-                      onPressed: (){
-                      _selectDate(context,actualStartDate,(date){
-                        setState(() {
-                          actualStartDate=date;
-                        });
-                      });
-                    }, ), 
-                 Text("actual start date :"),
-                Text(actualEndDate.toString()),
-                IconButton(
-                 icon: Icon(Icons.date_range), 
-                  onPressed: (){
-                  _selectDate(context,actualEndDate,(date){
-                    setState(() {
-                    actualEndDate=date;
-                    });
-                  });
-                }, ),
-              
-            
-            TextFormField(
-              controller: plannedEffortController,
-              decoration: InputDecoration(labelText: 'planned effort'),
-              /*validator: (value) {
-               if(value == null || value.isEmpty){
-                  return 'please enter the taskID';
-                }
-                return null;
-              },*/
-            ),
-            TextFormField(
-              controller:actualEffortController,
-              decoration: InputDecoration(labelText: 'actual effort'),
-             /* validator: (value) {
-                if(value == null || value.isEmpty){
-                  return 'please enter the taskID';
-                }
-                return null;
-              },*/
-            ),
-             Row(
-               children: [
-                Text("Status :   "),
-                 DropdownButton<String>(
-                  value: selectedStatus,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedStatus = newValue!;
-                    });
-                  },
-                  items: statusOptions.map((String status) {
-                    return DropdownMenuItem<String>(
-                      value: status,
-                      child: Text(status),
-                    );
-                  }).toList(),
-            ),
-               ],
-             ),
-            TextFormField(
-              controller: remarkController,
-              decoration: InputDecoration(labelText: 'remark'),
-             
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(onPressed: (){
-                  if(_formKey.currentState!.validate()){
-                    String taskID = taskIdController.text;
-                    String projectID = projectIdControler.text;
-                    String moduleID = moduleIdController.text;
-                    String plannedEffort = plannedEffortController.text;
-                    String actualEffort = actualEffortController.text;
-                    String status =selectedStatus;
-                    String remark = remarkController.text;
-                    DateTime selectStartDate = startDate;
-                    DateTime selectEndDate = endDate;
-                    DateTime selectActualStartDate = actualStartDate;
-                    DateTime seletActualEndDate = actualEndDate;
-                  }
-                }, child: Text("Update")),
-              ],
-            )
-          ],
-          ),
-          ),
-      
-         ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => taskCreateForm()),
+          );
+        },
       ),
     );
   }
