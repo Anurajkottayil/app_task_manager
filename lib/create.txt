@@ -1,0 +1,49 @@
+import 'package:task_manager/Task_View.dart';
+import 'package:flutter/material.dart';
+
+
+ class taskCreateForm extends StatefulWidget {
+ taskCreateForm({super.key});
+  final GlobalKey<FormState> formkey_=GlobalKey<FormState>();
+  final TextEditingController taskIdController =TextEditingController();
+  final TextEditingController projectIdControler =TextEditingController();
+  final TextEditingController moduleIdController = TextEditingController();
+  final TextEditingController startDateController=TextEditingController();
+  final TextEditingController endDateController=TextEditingController();
+  final TextEditingController actualStartDateController = TextEditingController();
+  final TextEditingController actualEndDateController = TextEditingController();
+  final TextEditingController plannedEffortController=TextEditingController();
+  final TextEditingController actualEffortController =TextEditingController();
+  
+  String selectedStatus = 'pending'; // Default status
+
+  List<String> statusOptions = ['pending', 'completed'];
+
+  final TextEditingController remarkController= TextEditingController();
+ 
+  Future<void> _selectDate(BuildContext context,DateTime initialDate,Function(DateTime) onDateSelect)async{
+    final DateTime? picked = await showDatePicker(
+      context: context, 
+      initialDate: DateTime.now(), 
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+       );
+       if(picked !=null){
+        onDateSelect(picked);
+       }
+  }
+
+  @override
+  State<taskCreateForm> createState() => _taskCreateFormState();
+}
+
+class _taskCreateFormState extends State<taskCreateForm> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Create Task"),
+      ),
+    );
+  }
+}
