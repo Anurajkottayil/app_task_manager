@@ -53,8 +53,8 @@ final String moduleId;
 }
 class Taskdetails {
  
-  final int projectId;
- // final String projectName;
+ final int projectId;
+  final String projectName;
  /* final int moduleId;
   final String startDate;
   final String endDate;
@@ -68,8 +68,8 @@ class Taskdetails {
 
   Taskdetails({
    
-    required this.projectId,
-  //  required this.projectName,
+   required this.projectId,
+   required this.projectName,
    /* required this.moduleId,
    required this.startDate,
     required this.endDate,
@@ -85,8 +85,8 @@ class Taskdetails {
   factory Taskdetails.fromJson(Map<String, dynamic> json) {
     return Taskdetails(
       
-      projectId: json['project_id'],
-     // projectName:json['project_name'],
+     projectId: json['project_id'],
+      projectName:json['project_name'],
       /*moduleId: json['module_id'],
       taskId: json['task_id'],
       startDate: json['startDate'],

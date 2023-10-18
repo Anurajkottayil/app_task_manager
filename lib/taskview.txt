@@ -5,99 +5,98 @@ import 'package:task_manager/task_create1.dart';
 import 'task_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter/src/material/dropdown.dart';
+
 
 class TaskView extends StatefulWidget {
- // const TaskView({Key key});
+  const TaskView({super.key});
 
   @override
   State<TaskView> createState() => _TaskViewState();
 }
 
 class _TaskViewState extends State<TaskView> {
-  List<Tasklist> tasks = [];
-  String selectedProjectId = '';
-  List<String> projectIds = []; // Store available project IDs
-
-  Future<void> fetchtasks() async {
-    final Uri apiUrl = Uri.parse('http://localhost:5000/task_view');
-    final response = await http.get(apiUrl);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body);
-      setState(() {
-        tasks = jsonData.map((item) => Tasklist.fromJson(item)).toList();
-      });
-    }
-  }
-
-  Future<void> fetchProjectIds() async {
-    final Uri projectUrl = Uri.parse('http://localhost:5000/project_ids');
-    final response = await http.get(projectUrl);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body);
-      setState(() {
-        projectIds = jsonData.cast<String>().toList();
-      });
-    }
-  }
-
+    List<Map<String, String>> projects = [];
+  final dio = Dio();
   @override
-  void initState() {
+ void initState() {
     super.initState();
-    fetchProjectIds(); // Fetch project IDs
-    fetchtasks();
+    fetchProjectData();
   }
+
+  Future<void> fetchProjectData() async {
+    try {
+      final response = await dio.get('http://localhost:5000/view_project');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = response.data;
+       final List<Map<String, String>> projectData = jsonData.map((data) {
+  return {
+    'project_id': data['project_id'].toString(),
+    'project_name': data['project_name'] as String, // Explicit cast
+  };
+}).toList();
+
+        setState(() {
+          projects = projectData;
+        });
+      }
+    } catch (e) {
+      print('Dio error: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       appBar: AppBar(
-        title: const Text("Task Manager"),
+        title:  Text("Task Manager"),
       ),
-      body: Column(
-        children: [
-          DropdownButton<String>(
-            value: selectedProjectId,
-            onChanged: (newValue) {
-              setState(() {
-                selectedProjectId = toString();
-              });
-              fetchtasks(); // Fetch tasks when project ID changes
-            },
-            items: projectIds.map((projectId) {
-              return DropdownMenuItem(value: projectId, child: Text(projectId));
-            }).toList(),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return ListTile(
-                  title: Text('task ID : ${task.taskId}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Project ID : ${task.projectId}'),
-                      Text('status : ${task.status}'),
-                    ],
-                  ),
-                  trailing: const Icon(Icons.arrow_forward),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: ((context) => taskDetails(tasks: task)),
-                      ),
-                    );
+      body: SafeArea(
+        child: Column(
+          children: [
+            Row(
+              children: [
+               /* Expanded(
+                  child DropdownButton<String>(
+                  value: selectedDropdownValue,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedDropdownValue = newValue!;
+                    });
                   },
-                );
-              },
+                  items: projectIds.map((String item) {
+                    return DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                ),
+                ),*/
+               
+              ],
             ),
-          ),
-        ],
+       Expanded(
+              child:ListView.builder(
+        itemCount: projects.length,
+        itemBuilder: (context, index) {
+          final project = projects[index];
+          return ListTile(
+            title: Text(project['project_id']!),
+            subtitle: Text(project['project_name']!),
+            onTap: () {
+              // Handle the onTap event for the list item.
+            },
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
+            ),
+          ],
+        ),
+      ),
+       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(

@@ -5,6 +5,9 @@ import 'package:task_manager/task_create1.dart';
 import 'task_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter/src/material/dropdown.dart';
+
 
 class TaskView extends StatefulWidget {
   const TaskView({super.key});
@@ -14,21 +17,56 @@ class TaskView extends StatefulWidget {
 }
 
 class _TaskViewState extends State<TaskView> {
-   List<String> items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
-  String selectedDropdownValue1 = 'Item 1';
-  String selectedDropdownValue2 = 'Item 2';
-    List<Taskdetails> projectIds = [];
-   Future<void> fetchProjectIds() async {
-    final Uri projectUrl = Uri.parse('http://localhost:5000//view_project');
-    final response = await http.get(projectUrl);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body);
-      setState(() {
-        projectIds = jsonData.cast<Taskdetails>().toList();
-      });
-    
+    List<Map<String, String>> projects = [];
+  final dio = Dio();
+   List<String> projectIds = [];
+  String selectedProjectId = '';
+  @override
+ void initState() {
+    super.initState();
+    fetchProjectData();
   }
+
+  Future<void> fetchProjectData() async {
+    try {
+      final response = await dio.get('http://localhost:5000/task_view');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = response.data;
+        final List<Map<String, String>> projectData = jsonData.map((data) {
+          return {
+
+            'task_id': data['task_id'].toString(),
+            'project_id': data['project_id'].toString(),
+             'module_id': data['module_id'].toString(),
+            'startdate': data['startdate'].toString(), 
+            'enddate': data['enddate'].toString(), 
+            'actualstartdate': data['actualenddate'].toString(), 
+            'actualenddate': data['actualenddate'].toString(),
+             'plannedeffort': data['plannedeffort'].toString(),
+            'actualeffort': data['actualeffort'].toString(),
+             'status': data['status'].toString(),
+            'remark': data['remark'].toString(),
+          //  'project_name': data['project_name'] as String,
+          };
+        }).toList();
+        setState(() {
+          projects = projectData;
+         projectIds = projectData
+  .map((project) => project['project_id'])
+  .where((id) => id != null)
+  .map((id) => id!)
+  .toList();
+
+        });
+      }
+    } catch (e) {
+      print('Dio error: $e');
+    }
+  }
+
+  @override
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,64 +74,54 @@ class _TaskViewState extends State<TaskView> {
       appBar: AppBar(
         title:  Text("Task Manager"),
       ),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButton<String>(
-                  value: selectedDropdownValue1,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedDropdownValue1 = newValue!;
-                    });
-                  },
-                  items: projectIds.map((String item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
-                    );
-                  }).toList(),
-                ),
-              ),
-              Expanded(
-                child: DropdownButton<String>(
-                  value: selectedDropdownValue2,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedDropdownValue2 = newValue!;
-                    });
-                  },
-                  items: items.map((String item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                /*Expanded(
+                  child: DropdownButton<String>(
+            value: selectedProjectId,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedProjectId = newValue!;
+              });
+            },
+            items: projectIds.map((String id) {
+              return DropdownMenuItem<String>(
+                value: id,
+                child: Text(id),
+              );
+            }).toList(),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text("TaskID"),
-                  subtitle: Text("STATUS"),
-                 trailing: const Icon(Icons.arrow_forward),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: ((context) => taskDetails()),
-                      ),
-                    );
-                  },
-                );
-              },
+                ),*/
+               
+              ],
             ),
-          ),
-        ],
+       Expanded(
+              child:ListView.builder(
+        itemCount: projects.length,
+        itemBuilder: (context, index) {
+          final project = projects[index];
+          return ListTile(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Task ID     :"+project['task_id']!),
+                Text("Project ID  :"+project['project_id']!),
+                Text("Status      :"+project['status']!),
+              ],
+            ),
+            
+            onTap: () {
+              // Handle the onTap event for the list item.
+            },
+          );
+        },
+      ),
+            ),
+          ],
+        ),
       ),
        floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
