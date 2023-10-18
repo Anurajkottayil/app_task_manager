@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:task_manager/task_edit.dart';
 import 'task_model.dart';
 class taskDetails extends StatefulWidget {
-  //  final Tasklist tasks;
-// taskDetails({Key? key, required this.tasks}) : super(key: key);
-
+    final Map<String, String> tasks;
+  taskDetails({Key? key, required this.tasks}) : super(key: key);
 
   @override
   State<taskDetails> createState() => _taskDetailsState();
@@ -28,18 +27,17 @@ class _taskDetailsState extends State<taskDetails> {
   void initState() {
     super.initState();
     // Set the initial values for the controllers
-  /*  taskIdController.text=widget.tasks.taskId;
-    projectIdControler.text = widget.tasks.projectId;
-    moduleIdController.text=widget.tasks.moduleId;
-    startDateController.text=widget.tasks.startDate;
-    endDateController.text=widget.tasks.endDate;
-    actualStartDateController.text=widget.tasks.actualStartDate;
-    actualEndDateController.text=widget.tasks.actualEndDate;
-    plannedEffortController.text=widget.tasks.plannedEffort;
-    actualEffortController.text=widget.tasks.actualEffort;
-    statusController.text=widget.tasks.status;
-    remarkController.text=widget.tasks.remark;
-*/
+    taskIdController.text = widget.tasks['task_id'] ?? '';
+  projectIdControler.text = widget.tasks['project_id'] ?? '';
+  moduleIdController.text = widget.tasks['module_id'] ?? '';
+  startDateController.text = widget.tasks['startdate'] ?? '';
+  endDateController.text = widget.tasks['enddate'] ?? '';
+  actualStartDateController.text = widget.tasks['actualstartdate'] ?? '';
+  actualEndDateController.text = widget.tasks['actualenddate'] ?? '';
+  plannedEffortController.text = widget.tasks['plannedeffort'] ?? '';
+  actualEffortController.text = widget.tasks['actualeffort'] ?? '';
+  statusController.text = widget.tasks['status'] ?? '';
+  remarkController.text = widget.tasks['remark'] ?? '';
   }
 
   
@@ -236,7 +234,7 @@ body: SingleChildScrollView(
                ],
              ),*/
               TextFormField(
-              controller:actualEffortController,
+              controller:statusController,
               decoration:InputDecoration(labelText: 'status',labelStyle: TextStyle(fontWeight: FontWeight.bold)) ,
               readOnly: true,
 

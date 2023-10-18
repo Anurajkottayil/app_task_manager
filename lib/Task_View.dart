@@ -114,7 +114,11 @@ class _TaskViewState extends State<TaskView> {
             ),
             
             onTap: () {
-              // Handle the onTap event for the list item.
+              Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) =>taskDetails(tasks : project), // Replace with your update form page
+          ),
+        );
             },
           );
         },
