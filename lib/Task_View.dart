@@ -20,10 +20,14 @@ class _TaskViewState extends State<TaskView> {
     List<Map<String, String>> projects = [];
   final dio = Dio();
    List<String> projectIds = [];
-  String selectedProjectId = '';
+  
+    //String selectedValue2 = 'Option 2';
+ String? selectedProjectId;
+
   @override
  void initState() {
     super.initState();
+    
     fetchProjectData();
   }
 
@@ -51,6 +55,7 @@ class _TaskViewState extends State<TaskView> {
           };
         }).toList();
         setState(() {
+  
           projects = projectData;
          projectIds = projectData
   .map((project) => project['project_id'])
@@ -67,36 +72,49 @@ class _TaskViewState extends State<TaskView> {
 
   @override
 
-
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
+
         title:  Text("Task Manager"),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
+        child: Column( 
+          children: [ 
+             Padding(
+               padding: const EdgeInsets.all(10.0),
+               child: Row(
+                
+                 children: [
+//SizedBox(width: 250,),
+
+
+
+                   DropdownButton<String>(
+                       value: selectedProjectId,
+                       onChanged: ( String? newValue) {
+                         setState(() {
+                    selectedProjectId = newValue!;
+                         });
+                       },
+                       items:  projectIds.map((String id)
+                   {
+                         return DropdownMenuItem <String>(
+                    value: id,
+                    child: Text(id),
+                         );
+                       }).toList(),
+                     ),
+
+
+                 ],
+               ),
+             ),
+             SizedBox(height: 20,),
+      
             Row(
-              children: [
-                /*Expanded(
-                  child: DropdownButton<String>(
-            value: selectedProjectId,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedProjectId = newValue!;
-              });
-            },
-            items: projectIds.map((String id) {
-              return DropdownMenuItem<String>(
-                value: id,
-                child: Text(id),
-              );
-            }).toList(),
-          ),
-                ),*/
-               
-              ],
+             
             ),
        Expanded(
               child:ListView.builder(
