@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'task_model.dart';
+import 'package:dio/dio.dart';
 
 
 
@@ -47,6 +48,42 @@ class _TaskViewState extends State<TaskCreate> {
         onDateSelect(picked);
        }
   }
+  Future<void> updateTask() async {
+  if (_formKey.currentState!.validate()) {
+    // Get values from your text controllers and selectedStatus
+    String taskID = taskIdController.text; 
+   // int taskIDint = int.tryParse(taskID) ?? 0;
+   // String actualEffort=actualEffortController.text;
+    String remark =remarkController.text;
+    try {
+      final dio = Dio();
+      final response = await dio.post(
+        'http://localhost:5000/update_task/$taskID', // Pass task_id as a URL parameter
+        data: {
+         
+          
+          
+         // 'actual_effort': actualEffort,
+         // 'status': selectedStatus, // Include selectedStatus in the request data
+          'remark': remark,
+         
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Update was successful
+        // You can add any further actions or display a success message here
+        print('Task updated successfully');
+      } else {
+        // Handle the error or display an error message
+        print('Failed to update task');
+      }
+    } catch (e) {
+      // Handle any network or request errors
+      print('Error: $e');
+    }
+  }
+}
   @override
   void initState() {
     super.initState();
@@ -105,6 +142,7 @@ class _TaskViewState extends State<TaskCreate> {
     );
     }
   }*/
+
 
  
   }
@@ -288,22 +326,13 @@ class _TaskViewState extends State<TaskCreate> {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(onPressed: (){
-                  if(_formKey.currentState!.validate()){
-                    String taskID = taskIdController.text;
-                    String projectID = projectIdControler.text;
-                    String moduleID = moduleIdController.text;
-                    String plannedEffort = plannedEffortController.text;
-                    String actualEffort = actualEffortController.text;
-                    String status =selectedStatus;
-                    String remark = remarkController.text;
-                    String startDate=startDateController.text;
-                    String endDate=endDateController.text;
-                    String actualStartDate=actualStartDateController.text;
-                    String actualEndDate=actualEndDateController.text;
+                ElevatedButton(
+                  onPressed: () {
+                    updateTask(); // Call the updateTask function on button press
+                  },
+                  child: Text("Update"),
+                ),
 
-                  }
-                }, child: Text("Update")),
               ],
             )
           ],

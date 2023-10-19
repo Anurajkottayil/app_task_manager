@@ -127,7 +127,7 @@ class _TaskViewState extends State<TaskView> {
               children: [
                 Text("Task ID     :"+project['task_id']!),
                 Text("Project ID  :"+project['project_id']!),
-                Text("Status      :"+project['status']!),
+                Text("Module ID     :"+project['module_id']!),
               ],
             ),
             
