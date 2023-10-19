@@ -8,9 +8,9 @@ import 'task_model.dart';
 
 
 class TaskCreate extends StatefulWidget {
-  //const TaskView({super.key});
-//  final Tasklist tasks;
- //  TaskCreate({Key? key, required this.tasks}) : super(key: key);
+   final Map<String, String> taskupdate;
+  TaskCreate({Key? key, required this.taskupdate}) : super(key: key);
+
 
 
   @override
@@ -50,7 +50,17 @@ class _TaskViewState extends State<TaskCreate> {
   @override
   void initState() {
     super.initState();
-   
+   taskIdController.text = widget.taskupdate['task_id'] ?? '';
+  projectIdControler.text = widget.taskupdate['project_id'] ?? '';
+  moduleIdController.text = widget.taskupdate['module_id'] ?? '';
+  startDateController.text = widget.taskupdate['startdate'] ?? '';
+  endDateController.text = widget.taskupdate['enddate'] ?? '';
+  actualStartDateController.text = widget.taskupdate['actualstartdate'] ?? '';
+  actualEndDateController.text = widget.taskupdate['actualenddate'] ?? '';
+  plannedEffortController.text = widget.taskupdate['plannedeffort'] ?? '';
+  actualEffortController.text = widget.taskupdate['actualeffort'] ?? '';
+  selectedStatus= widget.taskupdate['status'] ?? '';
+  remarkController.text = widget.taskupdate['remark'] ?? '';
   
 /* Future<void> fetchTaskData() async {
     final Uri apiUrl = Uri.parse('http://your-flask-server-url/get_task_data');

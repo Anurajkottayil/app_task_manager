@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/task_edit.dart';
+import 'Task_edit.dart';
 import 'task_model.dart';
 class taskDetails extends StatefulWidget {
     final Map<String, String> tasks;
@@ -52,7 +52,7 @@ class _taskDetailsState extends State<taskDetails> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) =>TaskCreate(), // Replace with your update form page
+            builder: (context) =>TaskCreate(taskupdate: widget.tasks), // Replace with your update form page
           ),
         );
       },
