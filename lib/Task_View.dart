@@ -23,6 +23,9 @@ class _TaskViewState extends State<TaskView> {
   
     //String selectedValue2 = 'Option 2';
  String? selectedProjectId;
+ String? selectedTaskId;
+  String? selectedStatus;
+
 
   @override
  void initState() {
@@ -71,7 +74,9 @@ class _TaskViewState extends State<TaskView> {
   }
 
   @override
-
+ List<Map<String, String>> getFilteredProjects(String projectId) {
+    return projects.where((project) => project['project_id'] == projectId).toList();
+ }
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -88,24 +93,41 @@ class _TaskViewState extends State<TaskView> {
                 
                  children: [
 //SizedBox(width: 250,),
+                    Text("PROJECT ID",style: TextStyle(fontSize:15,fontWeight: FontWeight.bold),),
 
-
-
-                   DropdownButton<String>(
-                       value: selectedProjectId,
-                       onChanged: ( String? newValue) {
-                         setState(() {
-                    selectedProjectId = newValue!;
-                         });
-                       },
-                       items:  projectIds.map((String id)
-                   {
-                         return DropdownMenuItem <String>(
-                    value: id,
-                    child: Text(id),
-                         );
-                       }).toList(),
+                   Padding(
+                     padding: const EdgeInsets.only(left:10),
+                     child: DecoratedBox(
+                      decoration:  BoxDecoration( 
+                        color:const Color.fromARGB(255, 237, 241, 232), //background color of dropdown button
+                        border: Border.all(color: Colors.black38, ), //border of dropdown button
+                        borderRadius: BorderRadius.circular(0), //border raiuds of dropdown button
+                        boxShadow: <BoxShadow>[ //apply shadow on Dropdown button
+                               BoxShadow(
+                                   color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
+                                   blurRadius: 1) //blur radius of shadow
+                             ]
                      ),
+                       child: Padding(
+                         padding: const EdgeInsets.only(left: 50,right: 50),
+                         child: DropdownButton<String>(
+                             value: selectedProjectId,
+                             onChanged: ( String? newValue) {
+                               setState(() {
+                          selectedProjectId = newValue!;
+                               });
+                             },
+                             items:  projectIds.map((String id)
+                         {
+                               return DropdownMenuItem <String>(
+                          value: id,
+                          child: Text(id),
+                               );
+                             }).toList(),
+                           ),
+                       ),
+                     ),
+                   ),
 
 
                  ],
@@ -118,23 +140,29 @@ class _TaskViewState extends State<TaskView> {
             ),
        Expanded(
               child:ListView.builder(
-        itemCount: projects.length,
+        itemCount: getFilteredProjects(selectedProjectId ?? '').length,
         itemBuilder: (context, index) {
-          final project = projects[index];
+          final project =getFilteredProjects(selectedProjectId ?? '')[index];
           return ListTile(
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Task ID     :"+project['task_id']!),
-                Text("Project ID  :"+project['project_id']!),
-                Text("Module ID     :"+project['module_id']!),
+
+                 Text("Task ID     : ${project['task_id']}"),
+                        Text("Project ID  : ${project['project_id']}"),
+                        Text("module ID      : ${project['module_id']}"),
+           
+            
               ],
             ),
             
             onTap: () {
               Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) =>taskDetails(tasks : project), // Replace with your update form page
+            builder: (context) =>taskDetails(tasks : project,
+             projectId:selectedProjectId,
+              taskId: project['task_id'],
+                status: project['status'],), // Replace with your update form page
           ),
         );
             },

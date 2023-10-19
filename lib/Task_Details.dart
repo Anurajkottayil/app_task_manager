@@ -3,7 +3,7 @@ import 'Task_edit.dart';
 import 'task_model.dart';
 class taskDetails extends StatefulWidget {
     final Map<String, String> tasks;
-  taskDetails({Key? key, required this.tasks}) : super(key: key);
+  taskDetails({Key? key, required this.tasks, String? projectId, String? status, String? taskId}) : super(key: key);
 
   @override
   State<taskDetails> createState() => _taskDetailsState();
